@@ -1,30 +1,18 @@
-from pathlib import Path
-
+from engine.data_pipelines.microservices.google_analytics_pipeline import RENAMER_SESSIONS_HITS, QUERY_SESSIONS_HITS
 from engine.data_pipelines.common.data_ops.extract.bigquery import read_from_bigquery
-from engine.data_pipelines.common.data_ops.transform.stage_columns import column_renaming
-
-QUERY_HITS_PER_VISITOR = Path(
-    "engine/data_pipelines/microservices/google_analytics_pipeline/sql/hits_sessions_20160801.sql"
-)
-
-
-HITS_SESSIONS_RENAMERS_PATH = Path(
-    "engine/data_pipelines/microservices/google_analytics_pipeline/renamers/hits_sessions_20160801.json"
-)
+from engine.data_pipelines.common.data_ops.transform.stage_columns import column_selection_and_renaming
 
 
 if __name__ == "__main__":
 
     # Extract
-    with open(QUERY_HITS_PER_VISITOR) as f:
-        query = f.read()
-        df = read_from_bigquery(
-            query=query,
-            project_id="dataops-forge",
-        )
+    df = read_from_bigquery(
+        query=QUERY_SESSIONS_HITS,
+        project_id="dataops-forge",
+    )
 
     # Transform - Staging
-    df_renamed = column_renaming(df=df, json_renamers_path=HITS_SESSIONS_RENAMERS_PATH)
+    df_renamed = column_selection_and_renaming(df=df, dict_renamers=RENAMER_SESSIONS_HITS)
 
     # Transform - Aggregate
     df_agg = df_renamed.groupby("referer").count()
