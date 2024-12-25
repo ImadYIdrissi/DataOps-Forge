@@ -5,7 +5,7 @@ WITH src_ga_sessions AS (
     FROM
         `bigquery-public-data.google_analytics_sample.ga_sessions_20160801`
 ),
-stg_hits_per_visitor AS (
+stg_hits AS (
     SELECT
         totals.pageViews as total_page_views,
         hits.*
@@ -16,4 +16,4 @@ stg_hits_per_visitor AS (
 SELECT
     *
 FROM
-    stg_hits_per_visitor
+    stg_hits
