@@ -4,7 +4,7 @@ Repository for managing ETL/ELT pipelines and related infrastructure.
 
 ## Repository structure
 
-```json
+```plaintext
 DataOps-Forge
 ├── services/
 │   └── public_apis/               # API code for exposing data
