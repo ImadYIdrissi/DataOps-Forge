@@ -7,11 +7,23 @@
 
 ## 2. Authenticate with Google Cloud
 
-Run the following command to authenticate Docker with Google Cloud:
+- Authenticate to Gcloud sdk for the first time
+  
+  ```bash
+  gcloud init
+  ```
 
-```bash
-gcloud auth configure-docker
-```
+- Set up the default-credentials & place them in the .screts.env file at the root of `DataOps-Forge`
+
+  ```bash
+  gcloud auth application-default print-access-token
+  ```
+
+- Run the following command to authenticate Docker with Google Cloud:
+
+  ```bash
+  gcloud auth configure-docker
+  ```
 
 This configures Docker to use Google Cloud credentials, allowing your container to access GCP services like BigQuery.
 
