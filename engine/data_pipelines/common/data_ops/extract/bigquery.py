@@ -4,9 +4,9 @@ from google.cloud import bigquery
 from engine.data_pipelines.common.logging import LOGGER
 
 
-def read_from_bigquery(query: str, project_id: str) -> pd.DataFrame:
+def read_from_bigquery(query: str, project_id: str, credentials: str) -> pd.DataFrame:
     try:
-        client = bigquery.Client(project=project_id)
+        client = bigquery.Client(project=project_id, credentials=credentials)
         LOGGER.info("Initialized BigQuery client.")
 
         query_job = client.query(query=query)
