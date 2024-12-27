@@ -2,5 +2,6 @@ black
 flake8
 pandas
 db-dtypes
+fastapi[standard]
 google-cloud-bigquery
 google-cloud-bigquery-storage
