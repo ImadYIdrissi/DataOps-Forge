@@ -14,7 +14,7 @@ DataOps-Forge/                     # Root of the repository containing all proje
 ┃ ┃ ┃ ┣ auth/                      # Authentication-related utilities.
 ┃ ┃ ┃ ┣ data_ops/                  # Generic utilities for data extraction, transformation, and loading.
 ┃ ┃ ┃ ┣ logging/                   # Centralized logging utilities for consistent logging across all code.
-┃ ┃ ┣ microservices/               # Microservices for handling specific business logic or data pipelines.
+┃ ┃ ┣ microservices/               # Micro Data pipelines as back-end microservices, not to confuse with DataOps-Forge/services
 ┃ ┃ ┃ ┣ google_analytics_pipeline/ # Microservice for processing Google Analytics data project.
 ┃ ┃ ┣ orchestrators/               # Workflow orchestration tools like Airflow or Dagster.
 ┃ ┃ ┃ ┣ airflow/                   # Placeholder for Airflow-specific configurations and DAGs.
