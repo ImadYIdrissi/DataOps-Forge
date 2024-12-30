@@ -19,5 +19,5 @@ ENV PYTHONPATH="/app"
 # Set an environment variable to indicate production mode
 ENV PYTHONUNBUFFERED=1
 
-# Set the default entry point to the Google Analytics pipeline
-CMD ["python", "engine/data_pipelines/microservices/google_analytics_pipeline/main_pipeline.py"]
+# Set the default entry point to the FastAPI app
+CMD ["python", "services/public_apis/ga_aggs/main.py"]
