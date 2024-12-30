@@ -9,7 +9,7 @@ from engine.data_pipelines.common.data_ops.extract.bigquery import read_from_big
 from engine.data_pipelines.common.data_ops.transform.stage_columns import column_selection_and_renaming
 
 
-if __name__ == "__main__":
+def main():
 
     LOGGER.info("Verify authentication.")
     # Get the token from the environment variable
@@ -35,3 +35,5 @@ if __name__ == "__main__":
 
     LOGGER.info("OUTPUT DATA (in logs)")
     LOGGER.info(df_agg)
+
+    return df_agg
