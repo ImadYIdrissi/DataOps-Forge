@@ -1,0 +1,22 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ga-aggs-service
+spec:
+  template:
+    spec:
+      containers:
+        - image: ga_aggs
+          ports:
+            - containerPort: 8000
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /app/secrets/service-account.json
+          volumeMounts:
+            - name: service-account-volume
+              mountPath: /app/secrets
+      volumes:
+        - name: service-account-volume
+          hostPath:
+            path: /home/iyid/workspaces/DataOps-Forge/.gcp/dataops-forge-local_container_dev_tester_bq.json
+            type: File
