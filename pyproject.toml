@@ -1,6 +1,7 @@
 [tool.black]
 line-length = 119
 
+
 [tool.flake8]
 max-line-length = 119
 ignore = ["E203"]
@@ -9,11 +10,11 @@ ignore = ["E203"]
 max-line-length = 119
 
 [tool.pylint.design]
-max-args = 10  # Maximum number of arguments for a function
+max-args = 10 # Maximum number of arguments for a function
 
 [tool.pylint.messages_control]
 disable = [
-    "logging-fstring-interpolation",  # Ignore logging f-string interpolation warnings
-    "too-many-positional-arguments",  # Disable positional arguments limit warning
-    "broad-exception-caught" # Disable board exception warnings
+    "logging-fstring-interpolation", # Ignore logging f-string interpolation warnings
+    "too-many-positional-arguments", # Disable positional arguments limit warning
+    "broad-exception-caught"        # Disable broad exception warnings
 ]
