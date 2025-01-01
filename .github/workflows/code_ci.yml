@@ -1,0 +1,86 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - master
+env:
+  ENV_FILE: .env
+jobs:
+  common:
+    name: Load Environment Variables
+    runs-on: ubuntu-latest
+    outputs:
+      python-version: ${{ steps.load-env.outputs.python-version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Load Environment Variables
+        id: load-env
+        run: |
+          set -a
+          [ -f ${{ env.ENV_FILE }}] && source ${{ env.ENV_FILE }}
+          echo "::set-output name=python-version::$PYTHON_VERSION"
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    needs: common
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ needs.common.outputs.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          pip install flake8
+
+      - name: Run Linter
+        run: flake8 .
+
+  security:
+    name: Security Check
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit Security Check
+        run: bandit -r .
+
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    needs: common
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ needs.common.outputs.python-version }}
+
+      - name: Install Quality Tools
+        run: |
+          pip install pylint black pydocstyle
+
+      - name: Run Pylint
+        run: pylint **/*.py
+
+      - name: Check Black Formatting
+        run: black --check .
+
+      - name: Check Pydocstyle
+        run: pydocstyle . || echo "Pydocstyle warnings detected. Please review. Run `pydocstyle .` at the root of the project."
+        continue-on-error: true # Non-blocking

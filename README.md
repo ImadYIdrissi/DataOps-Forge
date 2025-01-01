@@ -39,13 +39,15 @@ DataOps-Forge/                     # Root of the repository containing all proje
 
 ## Run CI locally
 
-Move to the root of the project
+Move to the root of the project.
 
 ```bash
 cd DataOps-Forge
 ```
 
-We use act to test CICD locally, follow these guidelines to test all the ci :
+We use `act` to test CICD locally, it needs docker to create containers that will be the ci runners.
+
+Test all the CI :
 
 ```bash
 act
