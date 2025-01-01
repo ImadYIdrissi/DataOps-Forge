@@ -27,5 +27,5 @@ def get_agg_data():
 
 if __name__ == "__main__":
     # Serve the FastAPI app on the port provided by the environment variable
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", "8000"))
     uvicorn.run(app, host="0.0.0.0", port=port)  # nosec

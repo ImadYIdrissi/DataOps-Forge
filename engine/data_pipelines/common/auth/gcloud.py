@@ -8,11 +8,11 @@ from engine.data_pipelines.common.logging import LOGGER
 def get_auth_token() -> str:
     """Retrieve a Google Cloud SDK authentication token.
 
-    Returns: Authentication token.
+    Returns:
+        str: Authentication token.
 
     Raises:
-      subprocess.CalledProcessError: If authentication fails.
-
+        subprocess.CalledProcessError: If authentication fails.
     """
     try:
         result = subprocess.run(  # nosec
@@ -28,9 +28,9 @@ def get_auth_token() -> str:
         if token:
             LOGGER.info("Successfully authenticated with Google Cloud SDK.")
             return token
-        else:
-            LOGGER.error("No token returned during authentication.")
-            raise subprocess.CalledProcessError(returncode=1, cmd=result.args, stderr="No token returned")
+
+        LOGGER.error("No token returned during authentication.")
+        raise subprocess.CalledProcessError(returncode=1, cmd=result.args, stderr="No token returned")
 
     except subprocess.CalledProcessError as e:
         msgs = e.stderr.split("\n")

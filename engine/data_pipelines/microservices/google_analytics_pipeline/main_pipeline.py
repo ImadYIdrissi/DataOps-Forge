@@ -1,7 +1,6 @@
 """Main pipeline module for google_analytics_pipeline."""
 
 import os
-from google.cloud import bigquery
 from google.auth import default
 from engine.data_pipelines.microservices.google_analytics_pipeline import RENAMER_SESSIONS_HITS, QUERY_SESSIONS_HITS
 from engine.data_pipelines.common.logging import LOGGER
@@ -26,16 +25,13 @@ def main():
                 "Cloud Run has the correct permissions."
             ) from e
         LOGGER.info("Using GOOGLE_APPLICATION_CREDENTIALS for authentication.")
-        credentials = None  # Automatically handled by the environment
-
-    # Initialize BigQuery client
-    client = bigquery.Client(credentials=credentials, project=project)
+        credentials = None  # Automatically handled by the environment*
 
     LOGGER.info("Extract data.")
     df = read_from_bigquery(
         query=QUERY_SESSIONS_HITS,
         project_id=project,
-        credentials=client._credentials,  # Pass client credentials
+        credentials=credentials,  # Pass client credentials
     )
 
     LOGGER.info("Transform - Staging")

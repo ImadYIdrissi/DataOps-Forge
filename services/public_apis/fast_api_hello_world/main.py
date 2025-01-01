@@ -38,9 +38,9 @@ async def read_user(user_id: int):
 class ModelName(str, Enum):
     """Enumeration for machine learning models."""
 
-    alexnet = "alexnet"
-    resnet = "resnet"
-    lenet = "lenet"
+    ALEXNET = "alexnet"
+    RESNET = "resnet"
+    LENET = "lenet"
 
 
 @app.get("/models/{model_name}")
@@ -53,7 +53,7 @@ async def get_model(model_name: ModelName):
     Returns:
         dict: Details about the selected model.
     """
-    if model_name is ModelName.alexnet:
+    if model_name is ModelName.ALEXNET:
         return {"model_name": model_name, "message": "Deep Learning FTW!"}
 
     if model_name.value == "lenet":
@@ -178,11 +178,11 @@ async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 10
     return {"q": q, "skip": skip, "limit": limit}
 
 
-commonDeps = Annotated[dict, Depends(common_parameters)]
+CommonDeps = Annotated[dict, Depends(common_parameters)]
 
 
 @app.get("/shmushes/")
-async def read_smushes(commons: commonDeps):
+async def read_smushes(commons: CommonDeps):
     """Read shmushes with common parameters.
 
     Args:
@@ -195,7 +195,7 @@ async def read_smushes(commons: commonDeps):
 
 
 @app.get("/shmooleys/")
-async def read_shmooleys(commons: commonDeps):
+async def read_shmooleys(commons: CommonDeps):
     """Read shmooleys with common parameters.
 
     Args:
