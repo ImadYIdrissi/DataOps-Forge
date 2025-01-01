@@ -1,5 +1,8 @@
 black
 flake8
+flake8-pyproject
+pylint
+pydocstyle
 pandas
 db-dtypes
 fastapi[standard]
