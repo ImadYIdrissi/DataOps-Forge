@@ -1,6 +1,6 @@
 """Gcloud auth module."""
 
-import subprocess
+import subprocess  # nosec
 
 from engine.data_pipelines.common.logging import LOGGER
 
@@ -15,7 +15,7 @@ def get_auth_token() -> str:
 
     """
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec
             args=["gcloud", "auth", "application-default", "print-access-token"],
             text=True,
             check=True,
