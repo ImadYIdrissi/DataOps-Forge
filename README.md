@@ -31,3 +31,28 @@ DataOps-Forge/                     # Root of the repository containing all proje
   ┣ integration/                   # Integration tests to validate interactions between modules or services.
   ┗ unit/                          # Unit tests for individual functions or modules.
 ```
+
+## External dependencies
+
+- Docker / Docker-desktop
+- act : To test CICD jobs
+
+## Run CI locally
+
+Move to the root of the project
+
+```bash
+cd DataOps-Forge
+```
+
+We use act to test CICD locally, follow these guidelines to test all the ci :
+
+```bash
+act
+```
+
+Or if you want to test just a particular area
+
+```bash
+act -j quality
+```
