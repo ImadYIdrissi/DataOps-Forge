@@ -4,3 +4,9 @@ line-length=119
 [tool.flake8]
 max-line-length = 119
 ignore = ["E203"]
+
+[tool.pylint.format]
+max-line-length = 119
+
+[tool.pylint.design]
+max-args = 10  # Maximum number of arguments for a func
