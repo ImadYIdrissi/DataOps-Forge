@@ -1,3 +1,5 @@
+"""Main pipeline module for google_analytics_pipeline."""
+
 import os
 from google.cloud import bigquery
 from google.auth import default
@@ -8,6 +10,7 @@ from engine.data_pipelines.common.data_ops.transform.stage_columns import column
 
 
 def main():
+    """Define main execution function representing a sample of a pipeline."""
     LOGGER.info("Verify authentication.")
 
     # Attempt to detect credentials automatically

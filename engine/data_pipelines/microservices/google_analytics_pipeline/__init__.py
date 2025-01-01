@@ -1,3 +1,5 @@
+"""Google analytics pipeline."""
+
 RENAMER_SESSIONS_HITS = {
     "total_page_views": "total_page_views",
     "hitNumber": "hit_number",

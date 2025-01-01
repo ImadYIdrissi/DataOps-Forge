@@ -1,3 +1,5 @@
+"""Entry point of ga_aggs service."""
+
 import os
 import uvicorn
 from fastapi import FastAPI
@@ -9,6 +11,11 @@ app = FastAPI()
 
 @app.get("/")
 def get_agg_data():
+    """Fetch aggregated data from the Google Analytics pipeline.
+
+    Returns:
+        list: A list of dictionaries representing aggregated data in JSON-compatible format.
+    """
     # Example DataFrame
     df_agg = main()
 

@@ -1,14 +1,18 @@
+"""Gcloud auth module."""
+
 import subprocess
 
 from engine.data_pipelines.common.logging import LOGGER
 
 
 def get_auth_token() -> str:
-    """
-    Retrieves a Google Cloud SDK authentication token.
+    """Retrieve a Google Cloud SDK authentication token.
 
-    :raises subprocess.CalledProcessError: If authentication fails.
-    :return: Authentication token.
+    Returns: Authentication token.
+
+    Raises:
+      subprocess.CalledProcessError: If authentication fails.
+
     """
     try:
         result = subprocess.run(
@@ -39,10 +43,9 @@ def get_auth_token() -> str:
 
 
 def am_i_authenticated() -> bool:
-    """
-    Checks if the user is authenticated with Google Cloud SDK.
+    """Check if the user is authenticated with Google Cloud SDK.
 
-    :return: True if authenticated, False otherwise.
+    Returns: True if this functions' runner is authentified to gcloud, False otherwise.
     """
     try:
         return bool(get_auth_token())

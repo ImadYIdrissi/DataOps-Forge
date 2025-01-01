@@ -1,0 +1,1 @@
+"""Global authentication operations module."""
