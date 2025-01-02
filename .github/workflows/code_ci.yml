@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - "**"
-  pull_request:
-    branches:
-      - master
 
 env:
   ENV_FILE: .env
@@ -16,49 +13,78 @@ jobs:
     name: Get Environment Variables
     runs-on: ubuntu-latest
     outputs:
-      python-version: ${{ steps.load-env.outputs.python-version }}
+      python-version: ${{ steps.load-internal-env.outputs.python-version }}
+      github-actions: ${{steps.load-external-env.outputs.github-actions}}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Load Environment Variables
-        id: load-env
+      - name: Load Project's Internal Environment Variables
+        id: load-internal-env
         run: |
-          set -a
+          set -x
           [ -f ${{ env.ENV_FILE }} ] && source ${{ env.ENV_FILE }}
-          echo "::set-output name=python-version::$PYTHON_VERSION"
+          echo "python-version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+      - name: Load External Environment Variables
+        id: load-external-env
+        run: |
+          set -x 
+          if [ "$GITHUB_ACTIONS" = "true" ]; then
+            echo "github-actions=$GITHUB_ACTIONS" >> $GITHUB_OUTPUT
+          else
+            echo "github-actions=false" >> $GITHUB_OUTPUT
+          fi
 
   env-setup:
     name: Setup Python and Install Dependencies
     runs-on: ubuntu-latest
     needs: env-vars
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
       - name: Set up Python
-        id: setup-python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ needs.env-vars.outputs.python-version }}
+      - name: Create Non-root User & Install dependencies # This step does not run on github actions
+        if: ${{ needs.env-vars.outputs.github-actions == 'false' }}
+        run: |
+          useradd -ms /bin/bash pyrunner
+          mkdir -p /home/pyrunner/.cache/pip
+          chown -R pyrunner:pyrunner /home/pyrunner
+          chmod -R 700 /home/pyrunner/.cache/pip
 
-      - name: Create Python Dev-tools Dependencies Cache
+          sudo -u pyrunner bash -c "
+          python -m venv ~/venv &&
+          source ~/venv/bin/activate &&
+          pip install --upgrade pip &&
+          pip install -r requirements.txt
+          "
+      - name: Install Python Dependencies
+        if: ${{ needs.env-vars.outputs.github-actions == 'true' }}
+        run: |
+          python -m venv ~/venv &&
+          source ~/venv/bin/activate &&
+          pip install --upgrade pip &&
+          pip install -r requirements.txt
+      - name: Verify Python Version
+        run: |
+          source ~/venv/bin/activate
+          ACTUAL_VERSION=$(python --version 2>&1 | sed 's/Python //')
+          EXPECTED_VERSION="${{ needs.env-vars.outputs.python-version }}"
+          echo "Actual: $ACTUAL_VERSION"
+          echo "Expected: $EXPECTED_VERSION"
+      
+          if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "ERROR: Python version mismatch: expected $EXPECTED_VERSION, got $ACTUAL_VERSION"
+            exit 1
+          fi
+      - name: Save Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-dev-tools-dev-tools-${{ hashFiles('requirements.dev.txt') }}
-
-      - name: Install Development Dependencies
-        run: pip install -r requirements.dev.txt
-
-      - name: Create Python prod-libs Dependencies Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-prod-libs-${{ hashFiles('requirements.txt') }}
-
-      - name: Install Prod Dependencies
-        run: pip install -r requirements.txt
+          path: ~/venv
+          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
   lint:
     name: Flake8 linting
@@ -68,18 +94,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore Python Dev-tools Dependencies Cache
+      - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-dev-tools-${{ hashFiles('requirements.dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-dev-tools-
-      - name: Install Flake8
-        run: pip install flake8 flake8-pyproject
+          path: ~/venv
+          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
       - name: Run Flake8
-        run: flake8 .
+        run: |
+          source ~/venv/bin/activate
+          flake8 .
 
   security:
     name: Security Check
@@ -89,18 +113,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore Python Dev-tools Dependencies Cache
+      - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-dev-tools-${{ hashFiles('requirements.dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-dev-tools-
-      - name: Install Bandit
-        run: pip install bandit
+          path: ~/venv
+          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
       - name: Run Bandit Security Check
-        run: bandit -r .
+        run: |
+          source ~/venv/bin/activate
+          bandit -r .
 
   quality:
     name: Code Quality
@@ -110,34 +132,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore Python Dev-tools Dependencies Cache
+      - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-dev-tools-${{ hashFiles('requirements.dev.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-dev-tools-
+          path: ~/venv
+          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
-      - name: Restore Python Prod Dependencies Cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-prod-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-prod-
-
-      - name: Install Pylint, Black & Pydocstyle
-        run: pip install pylint black pydocstyle
-
-      - name: Install Prod libs
-        run: pip install -r requirements.txt
-
-      - name: Pylint linting
-        run: pylint .
+      - name: Run Pylint
+        run: |
+          source ~/venv/bin/activate
+          pylint .
 
       - name: Check Black Formatting
-        run: black --check .
+        run: |
+          source ~/venv/bin/activate
+          black --check .
 
       - name: Check Pydocstyle
-        run: pydocstyle .
+        run: |
+          source ~/venv/bin/activate
+          pydocstyle .
         continue-on-error: true # Non-blocking

@@ -1,0 +1,6 @@
+black
+bandit
+flake8
+flake8-pyproject
+pylint
+pydocstyle
