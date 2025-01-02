@@ -32,16 +32,19 @@ jobs:
     name: Setup Python and Install Dependencies
     runs-on: ubuntu-latest
     needs: env-vars
+    container: # Use a  python pre-installed container instead of ubuntu-latest directly
+      image: python:${{ needs.env-vars.outputs.python-version }}-slim
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
-      - name: Set up Python
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ needs.env-vars.outputs.python-version }}
-
+      # Install becessary system dependencues on python-slim container
+      - name: Install sudo
+        run: |
+          apt-get update && apt-get install -y sudo
+      - name: Install Node
+        run: |
+          apt-get update && apt-get install -y nodejs
       - name: Create Non-root User
         run: |
           useradd -ms /bin/bash pyrunner
@@ -130,4 +133,4 @@ jobs:
         run: |
           source /home/pyrunner/venv/bin/activate
           pydocstyle .
-        continue-on-error: true  # Non-blocking
+        continue-on-error: true # Non-blocking
