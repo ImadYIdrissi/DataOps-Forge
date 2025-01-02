@@ -59,8 +59,8 @@ jobs:
           chmod -R 700 /home/pyrunner/.cache/pip
 
           sudo -u pyrunner bash -c "
-          python -m venv /home/pyrunner/venv &&
-          source /home/pyrunner/venv/bin/activate &&
+          python -m venv ~/venv &&
+          source ~/venv/bin/activate &&
           pip install --upgrade pip &&
           pip install -r requirements.txt
           "
@@ -86,7 +86,7 @@ jobs:
       - name: Save Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/pyrunner/venv
+          path: ~/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
   lint:
@@ -100,12 +100,12 @@ jobs:
       - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/pyrunner/venv
+          path: ~/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
       - name: Run Flake8
         run: |
-          source /home/pyrunner/venv/bin/activate
+          source ~/venv/bin/activate
           flake8 .
 
   security:
@@ -119,12 +119,12 @@ jobs:
       - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/pyrunner/venv
+          path: ~/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
       - name: Run Bandit Security Check
         run: |
-          source /home/pyrunner/venv/bin/activate
+          source ~/venv/bin/activate
           bandit -r .
 
   quality:
@@ -138,21 +138,21 @@ jobs:
       - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/pyrunner/venv
+          path: ~/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.txt') }}
 
       - name: Run Pylint
         run: |
-          source /home/pyrunner/venv/bin/activate
+          source ~/venv/bin/activate
           pylint .
 
       - name: Check Black Formatting
         run: |
-          source /home/pyrunner/venv/bin/activate
+          source ~/venv/bin/activate
           black --check .
 
       - name: Check Pydocstyle
         run: |
-          source /home/pyrunner/venv/bin/activate
+          source ~/venv/bin/activate
           pydocstyle .
         continue-on-error: true # Non-blocking
