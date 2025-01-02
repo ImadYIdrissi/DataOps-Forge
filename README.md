@@ -37,6 +37,25 @@ DataOps-Forge/                     # Root of the repository containing all proje
 - Docker / Docker-desktop
 - act : To test CICD jobs
 
+## Setup the environment
+
+1. Create virtual env via pyenv, for convention call it dataops-forge
+2. Activate virtual env
+
+    ```bash
+    pyenv activate dataops-forge
+    pip install -U pip pip-tools
+    ```
+
+    NB: It is recommended to set up this environment as your default IDE interpreter. 3. Install and update python tools
+
+3. [Optional] if need to update python requirements, then recompile them this way :
+
+    ```bash
+    pip-compile requirements.in
+    pip-compile requirements.dev.in
+    ```
+
 ## Run CI locally
 
 Move to the root of the project.
@@ -57,4 +76,27 @@ Or if you want to test just a particular area
 
 ```bash
 act -j quality
+```
+
+You can also visualize the dependency graph with
+
+```bash
+act --graph
+```
+
+Example output
+
+```plaintext
+INFO[0000] Using docker host 'unix:///var/run/docker.sock', and daemon socket 'unix:///var/run/docker.sock'
+             ╭───────────────────────────╮
+             │ Get Environment Variables │
+             ╰───────────────────────────╯
+                           ⬇
+       ╭───────────────────────────────────────╮
+       │ Setup Python and Install Dependencies │
+       ╰───────────────────────────────────────╯
+                           ⬇
+ ╭────────────────╮ ╭────────────────╮ ╭──────────────╮
+ │ Flake8 linting │ │ Security Check │ │ Code Quality │
+ ╰────────────────╯ ╰────────────────╯ ╰──────────────╯
 ```
