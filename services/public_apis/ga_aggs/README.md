@@ -15,3 +15,17 @@
   ```
 
 - Visit `localhost:8000`
+
+## Deploy via cloudbuild & cloud run
+
+- Load env variables for this service/public_api:
+
+  ```bash
+  source .env
+  ```
+
+- Trigger the build
+
+  ```bash
+  gcloud builds submit --config=cloudbuild.yaml --substitutions=_APP_NAME=$APP_NAME,_SERVICE_NAME=$SERVICE_NAME
+  ```
