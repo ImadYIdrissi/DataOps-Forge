@@ -1,29 +1,37 @@
 steps:
-  # Step 1: Build the Docker image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA', '.']
-
-  # Step 2: Push the Docker image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA']
-
-  # Step 3: Deploy the image to Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Build Docker Image"
     args:
-      - 'run'
-      - 'deploy'
-      - '$_SERVICE_NAME'
-      - '--image'
-      - 'gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA'
-      - '--region'
-      - 'europe-west9'
-      - '--platform'
-      - 'managed'
+      - "build"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA"
+      - "."
+    dir: "services/public_apis/ga_aggs"
 
-# Define substitutions for dynamic values
+  - name: "gcr.io/cloud-builders/docker"
+    id: "Push Docker Image to Artifact Registry"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA"
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    id: "Deploy to Cloud Run"
+    args:
+      - "run"
+      - "deploy"
+      - "$_SERVICE_NAME"
+      - "--image"
+      - "gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA"
+      - "--region"
+      - "europe-west9"
+      - "--platform"
+      - "managed"
+      - "--timeout"
+      - "300s"
+
 substitutions:
-  _APP_NAME: 'ga_aggs'
-  _SERVICE_NAME: 'ga_aggs_service'
-  _SHORT_SHA: 'latest' # Use 'latest' as a fallback if SHORT_SHA is not set
+  _APP_NAME: "ga_aggs"
+  _SERVICE_NAME: "ga-aggs-service"
+  _SHORT_SHA: "latest"
 
-timeout: '600s'
+timeout: "600s"
