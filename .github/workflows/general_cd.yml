@@ -1,0 +1,56 @@
+name: Deploy to GCP
+
+on:
+  release:
+    types: [created]
+  # push:
+  #     branches:
+  #         - master
+
+env:
+  ENV_FILE: .env
+
+jobs:
+  env-vars:
+    name: Get Environment Variables
+    runs-on: ubuntu-latest
+    outputs:
+      python-version: ${{ steps.load-internal-env.outputs.python-version }}
+      gcp-project-id: ${{ steps.load-internal-env.outputs.gcp-project-id }}
+      service-account-name: ${{ steps.load-internal-env.outputs.service-account-name }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Load Project's Internal Environment Variables
+        id: load-internal-env
+        run: |
+          set -x
+          if [ -f ${{ env.ENV_FILE }} ]; then
+            source ${{ env.ENV_FILE }}
+            echo "python-version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+            echo "gcp-project-id=$GCP_PROJECT_ID" >> $GITHUB_OUTPUT
+            echo "service-account-name=$BUILD_AND_RELEASE_SERVICE_ACCOUNT_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "No .env file found, skipping..."
+          fi
+
+  trigger-cloud-build:
+    name: Trigger Cloud Build
+    runs-on: ubuntu-latest
+    needs: env-vars
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Authenticate with GCP
+        env:
+          GCP_KEY: ${{ secrets.THE_BUILDER_RELEASER }}
+        run: |
+          echo "${GCP_KEY}" > gcp-key.json
+          gcloud auth activate-service-account --key-file=gcp-key.json
+          gcloud config set project ${{ needs.env-vars.outputs.gcp-project-id }}
+
+      - name: Trigger Cloud Build
+        run: |
+          gcloud builds submit --config=cloudbuild.yaml .
