@@ -1,4 +1,3 @@
--r requirements.dev.in
 pandas
 db-dtypes
 google-cloud-bigquery
