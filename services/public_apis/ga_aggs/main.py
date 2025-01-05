@@ -4,7 +4,7 @@ import os
 import uvicorn
 from fastapi import FastAPI
 
-from engine.data_pipelines.microservices.google_analytics_pipeline.main_pipeline import main
+from data_pipelines.microservices.google_analytics_pipeline.main_pipeline import main
 
 app = FastAPI()
 

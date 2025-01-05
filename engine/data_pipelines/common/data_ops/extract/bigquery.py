@@ -3,7 +3,7 @@
 import pandas as pd
 from google.cloud import bigquery
 
-from engine.data_pipelines.common.logging import LOGGER
+from data_pipelines.common.logging import LOGGER
 
 
 def read_from_bigquery(query: str, project_id: str, credentials: str) -> pd.DataFrame:

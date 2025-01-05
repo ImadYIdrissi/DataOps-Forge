@@ -2,10 +2,10 @@
 
 import os
 from google.auth import default
-from engine.data_pipelines.microservices.google_analytics_pipeline import RENAMER_SESSIONS_HITS, QUERY_SESSIONS_HITS
-from engine.data_pipelines.common.logging import LOGGER
-from engine.data_pipelines.common.data_ops.extract.bigquery import read_from_bigquery
-from engine.data_pipelines.common.data_ops.transform.stage_columns import column_selection_and_renaming
+from data_pipelines.microservices.google_analytics_pipeline import RENAMER_SESSIONS_HITS, QUERY_SESSIONS_HITS
+from data_pipelines.common.logging import LOGGER
+from data_pipelines.common.data_ops.extract.bigquery import read_from_bigquery
+from data_pipelines.common.data_ops.transform.stage_columns import column_selection_and_renaming
 
 
 def main():
