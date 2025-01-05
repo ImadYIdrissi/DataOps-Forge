@@ -79,30 +79,101 @@ Set up a service account with the necessary permissions for building, deploying,
 1. Load environment variables from relevant `.env` files
 
    ```bash
-   cd <root-of-the-repo>
+   cd DataOps-Forge
    source .env  # Project env vars
    source services/public_apis/ga_aggs/.env  # Env vars of app/service to delete
    ```
 
-2. Delete cloud run service
+2. Delete one or all deployed services
+
+   - Option 1 : List the deployed services & delete the one you want
+
+     ```bash
+     gcloud run services list --platform managed --region europe-west9
+     ```
+
+     Should return a list of deployed services.
+
+     ```playtext
+     SERVICE          REGION        URL                                                        LAST DEPLOYED BY                                    LAST DEPLOYED AT
+     ✔  ga-aggs-service  europe-west9  https://ga-aggs-service-253697463975.europe-west9.run.app  253697463975-compute@developer.gserviceaccount.com  2025-01-05T19:38:58.943761Z
+     ```
+
+     Delete cloud run service
+
+     ```bash
+     export SERVICE_NAME=ga-aggs-service # Replace with the service you wish to delete
+     gcloud run services delete "$SERVICE_NAME" --region "$REGION" -o-platfrm managed --quiet
+     ```
+
+   - Option 2 : Delete all run services (Bulk method, be careful)
+
+     ```bash
+      ALL_SERVICE_NAMES=$(gcloud run services list --platform managed --region europe-west9 --format="value(metadata.name)")
+
+      # Loop through each service and delete it
+      for SERVICE_NAME in $ALL_SERVICE_NAMES; do
+         gcloud run services delete "$SERVICE_NAME" --platform managed --region europe-west9 --quiet
+      done
+     ```
+
+3. Delete docker images from GCR repositories
 
    ```bash
-   gcloud run services delete "$SERVICE_NAME" --region "$REGION" --platform managed --quiet
+   REPO="gcr.io/$GCP_PROJECT_ID"
+
+   echo "Processing repository: $REPO"
+
+   # List all images in the GCR repository
+   IMAGES=$(gcloud container images list --repository="$REPO" --format="value(name)")
+
+   # Loop through each image in the repository
+   for IMAGE in $IMAGES; do
+      echo "Processing image: $IMAGE"
+
+      # List all tags for
+      TAGS=$(gcloud container images list-tags "$IMAGE" --format="value(tags)")
+
+      # Delete each tag associated with the image
+      for TAG in $TAGS; do
+         echo "Deleting image: $IMAGE:$TAG"
+         gcloud container images delete "$IMAGE:$TAG" --quiet --force-delete-tags
+      done
+   done
    ```
 
-3. Delete docker images from artifact registry
+4. Delete the `gcr.io` repository: [DOES NOT WORK]
 
    ```bash
-   gcloud artifacts docker images delete "gcr.io/$PROJECT_ID/$APP_NAME" --delete-tags --quiet
+   gcloud artifacts repositories delete "gcr.io" --location="$REGION" --quiet
    ```
 
-4. Clean up associated resources (Optional)
+5. Clean up associated resources (Optional)
 
-   Build history
+   List the builds of the last 7days (-P7D) and output just their ID. Put this in a var and loop to delete these builds.
 
    ```bash
-   gcloud builds list --filter="images:gcr.io/$PROJECT_ID/$APP_NAME" --format="value(id)" | \
-   xargs -I {} gcloud builds delete {} --quiet
+   BUILD_IDS=$(gcloud builds list --filter="createTime >= -P7D AND (status=QUEUED OR status=WORKING)" --format="value(ID)")
+   for BUILD_ID in $BUILD_IDS; do
+      echo "Cancelling build: $BUILD_ID"
+      gcloud builds cancel "$BUILD_ID" --quiet
+   done
+   ```
+
+   If you added permissions (e.g., allUsers for public access), ensure they're cleaned up to avoid unintended access.
+   Revoke permissions for allUsers:
+
+   ```bash
+   gcloud run services remove-iam-policy-binding ga-aggs-service \
+   --region=europe-west9 \
+   --member="allUsers" \
+   --role="roles/run.invoker"
+   ```
+
+   Check and clean up additional IAM bindings if needed:
+
+   ```bash
+   gcloud projects get-iam-policy $GCP_PROJECT_ID
    ```
 
    Delete secrets (if any)
@@ -110,3 +181,5 @@ Set up a service account with the necessary permissions for building, deploying,
    ```bash
    gcloud secrets delete SECRET_NAME
    ```
+
+6. Verify billing
