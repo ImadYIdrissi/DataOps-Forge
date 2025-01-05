@@ -5,8 +5,9 @@ steps:
       - "build"
       - "-t"
       - "gcr.io/$PROJECT_ID/$_APP_NAME:$_SHORT_SHA"
+      - "-f"
+      - "services/public_apis/ga_aggs/Dockerfile"
       - "."
-    dir: "services/public_apis/ga_aggs"
 
   - name: "gcr.io/cloud-builders/docker"
     id: "Push Docker Image to Artifact Registry"

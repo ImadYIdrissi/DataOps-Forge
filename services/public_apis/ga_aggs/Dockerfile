@@ -1,43 +1,49 @@
-# Use Python 3.12 slim as the base image
-# TODO : Interpolate PYTHON_VERSION from global .env
-FROM python:3.12-slim
+# Stage 1: Build the `engine` package
+ARG PYTHON_BASE_VERSION=3.12
+FROM python:${PYTHON_BASE_VERSION}-slim AS builder
 
-# Set the working directory inside the container
-WORKDIR /app
+WORKDIR /build
 
-# Set debconf to noninteractive mode to prevent debconf from attempting interactive conf
-ENV DEBIAN_FRONTEND=noninteractive
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends gcc && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies for building Python packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    apt-utils gcc libpq-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Copy the `engine` source code
+COPY engine /build/engine
 
 # Create a virtual environment
 RUN python -m venv /opt/venv
-
-# Ensure the virtual environment is used by default
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy service-specific requirements
-COPY requirements.txt /app/
+# Build the wheel with a custom output directory using `python -m build`
+RUN pip install --no-cache-dir build && \
+    cd engine && \
+    python -m build --wheel --outdir /build/output
 
-# Install dependencies inside the virtual environment
+# Stage 2: Build the application image
+FROM python:${PYTHON_BASE_VERSION}-slim
+
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Create a virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy and install the `engine` wheel from the builder stage
+COPY --from=builder /build/output/*.whl /app/
+RUN pip install --no-cache-dir /app/*.whl
+
+# Copy application-specific requirements
+COPY services/public_apis/ga_aggs/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the service code into the container
-COPY . /app
+# Copy the service code
+COPY services/public_apis/ga_aggs /app/
 
-# Add the working directory to PYTHONPATH
-ENV PYTHONPATH="/app"
-
-# Expose the port for Cloud Run
+# Expose the port and set the default entry point
 EXPOSE 8080
-
-# Set an environment variable to indicate production mode
-ENV PYTHONUNBUFFERED=1
-
-# Set the default entry point to the FastAPI app
 CMD ["python", "main.py"]
