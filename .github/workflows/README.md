@@ -1,8 +1,8 @@
-# Creating a Service Account for CI/CD with Required Roles
+# Global CICD documentation
 
-## Purpose
+## Setup : Creating a Service Account for CI/CD with Required Roles
 
-Set up a service account with the necessary permissions for building, deploying, and managing Docker images using Google Cloud Build, Cloud Run, and Artifact Registry.
+**Purpose**: Set up a service account with the necessary permissions for building, deploying, and managing Docker images using Google Cloud Build, Cloud Run, and Artifact Registry.
 
 ---
 
@@ -66,7 +66,9 @@ Set up a service account with the necessary permissions for building, deploying,
 6. Save the key in github secrets, then delete the key.json:
    - Name of the secret (Choose service account namen replace `-` with `_`)
 
-## Running cloud build to save artifacts and deploy using google run
+## Deployment how-tos
+
+### Running cloud build to save artifacts and deploy using google run
 
 - For deploying `ga_aggs` app :
 
@@ -74,7 +76,7 @@ Set up a service account with the necessary permissions for building, deploying,
    gcloud builds submit --config=cloudbuild.yaml --substitutions=_SERVICE_NAME=my-service,_REPO_NAME=ga_aggs
   ```
 
-## Clean artifacts & cloud run [Exercice with caution]
+### Clean artifacts & cloud run [Exercice with caution]
 
 1. Load environment variables from relevant `.env` files
 
