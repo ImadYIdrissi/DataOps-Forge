@@ -62,34 +62,10 @@ jobs:
         with:
           python-version: ${{ needs.env-vars.outputs.python-version }}
 
-      - name: Create Non-root User, Compile and Install Dependencies
-        if: ${{ needs.env-vars.outputs.github-actions == 'false' }}
-        run: |
-          useradd -ms /bin/bash runner
-          mkdir -p /home/runner/.cache/pip
-          chown -R runner:runner /home/runner
-          chmod -R 700 /home/runner/.cache/pip
-
-          sudo -u runner bash -c "
-          python -m venv /home/runner/venv &&
-          source /home/runner/venv/bin/activate &&
-          pip install --upgrade pip pip-tools &&
-
-          pip-compile --no-strip-extras requirements.ci.in -o requirements.ci.txt &&
-          pip-compile --no-strip-extras engine/requirements.engine.in -o engine/requirements.engine.txt &&
-          find services -name "requirements.in" -exec pip-compile --no-strip-extras {} + &&
-          find services -name "requirements.txt" -exec cat {} + > services/requirements.all_services.txt &&
-
-          pip install -r requirements.ci.txt &&
-          pip install -r engine/requirements.engine.txt &&
-          pip install -r services/requirements.all_services.txt
-          "
-
       - name: Compile and Install Python Dependencies
-        if: ${{ needs.env-vars.outputs.github-actions == 'true' }}
         run: |
-          python -m venv /home/runner/venv &&
-          source /home/runner/venv/bin/activate &&
+          python -m venv $GITHUB_WORKSPACE/venv &&
+          source $GITHUB_WORKSPACE/venv/bin/activate &&
           pip install --upgrade pip pip-tools &&
 
           pip-compile --no-strip-extras requirements.ci.in -o requirements.ci.txt &&
@@ -103,7 +79,7 @@ jobs:
 
       - name: Verify Python Version
         run: |
-          source /home/runner/venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           ACTUAL_VERSION=$(python --version 2>&1 | sed 's/Python //')
           EXPECTED_VERSION="${{ needs.env-vars.outputs.python-version }}"
           echo "Actual: $ACTUAL_VERSION"
@@ -117,7 +93,7 @@ jobs:
       - name: Save Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/runner/venv
+          path: $GITHUB_WORKSPACE/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt', 'engine/requirements.engine.txt', 'services/requirements.all_services.txt') }}
 
   lint:
@@ -131,12 +107,18 @@ jobs:
       - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/runner/venv
-          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt') }}
+          path: $GITHUB_WORKSPACE/venv
+          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt', 'engine/requirements.engine.txt', 'services/requirements.all_services.txt') }}
+
+      - name: Debug Virtual Environment
+        run: |
+          echo "Debugging virtual environment"
+          ls -l $GITHUB_WORKSPACE
+          ls -l $GITHUB_WORKSPACE/venv
 
       - name: Run Flake8
         run: |
-          source /home/runner/venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           flake8 .
 
   security:
@@ -150,12 +132,12 @@ jobs:
       - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/runner/venv
+          path: $GITHUB_WORKSPACE/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt', 'engine/requirements.engine.txt', 'services/requirements.all_services.txt') }}
 
       - name: Run Bandit Security Check
         run: |
-          source /home/runner/venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           bandit -r .
 
   quality:
@@ -169,21 +151,21 @@ jobs:
       - name: Restore Python Environment Cache
         uses: actions/cache@v3
         with:
-          path: /home/runner/venv
-          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt') }}
+          path: $GITHUB_WORKSPACE/venv
+          key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt', 'engine/requirements.engine.txt', 'services/requirements.all_services.txt') }}
 
       - name: Run Pylint
         run: |
-          source /home/runner/venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           pylint .
 
       - name: Check Black Formatting
         run: |
-          source /home/runner/venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           black --check .
 
       - name: Check Pydocstyle
         run: |
-          source /home/runner/venv/bin/activate
+          source $GITHUB_WORKSPACE/venv/bin/activate
           pydocstyle .
         continue-on-error: true # Non-blocking
