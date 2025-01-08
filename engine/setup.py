@@ -16,7 +16,7 @@ def parse_requirements(file) -> list:
     """
     print(f"Looking for requirements at: {os.path.join(base_dir, 'requirements.txt')}")
 
-    with open(file, "r") as f:
+    with open(file, "r", encoding="utf-8") as f:
         return [line.strip() for line in f if line and not line.startswith("#")]
 
 
