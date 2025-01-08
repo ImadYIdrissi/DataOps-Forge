@@ -145,7 +145,7 @@ jobs:
       - name: Run Pylint
         run: |
           source ~/venv/bin/activate
-          pylint .
+          pylint engine services tests
 
       - name: Check Black Formatting
         run: |
