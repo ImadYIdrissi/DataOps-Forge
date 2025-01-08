@@ -79,7 +79,7 @@ jobs:
           EXPECTED_VERSION="${{ needs.env-vars.outputs.python-version }}"
           echo "Actual: $ACTUAL_VERSION"
           echo "Expected: $EXPECTED_VERSION"
-      
+
           if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
             echo "ERROR: Python version mismatch: expected $EXPECTED_VERSION, got $ACTUAL_VERSION"
             exit 1
@@ -141,6 +141,9 @@ jobs:
         with:
           path: ~/venv
           key: ${{ runner.os }}-python-venv-${{ hashFiles('requirements.ci.txt','engine/requirements.engine.txt','services/requirements.all_services.txt') }}
+
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/engine" >> $GITHUB_ENV
 
       - name: Run Pylint
         run: |
