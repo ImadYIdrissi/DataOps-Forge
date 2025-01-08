@@ -52,6 +52,8 @@ pygments==2.18.0
     # via rich
 pylint==3.3.3
     # via -r requirements.ci.in
+python-dotenv==1.0.1
+    # via -r requirements.ci.in
 pyyaml==6.0.2
     # via bandit
 rich==13.9.4
