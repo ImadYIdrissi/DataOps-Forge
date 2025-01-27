@@ -6,6 +6,9 @@ line-length = 119
 max-line-length = 119
 ignore = ["E203"]
 
+[tool.pylint]
+init-hook = 'import dotenv, os; dotenv.load_dotenv(); import sys; sys.path.append(os.getenv("PYTHONPATH", ""))'
+
 [tool.pylint.format]
 max-line-length = 119
 
@@ -16,5 +19,5 @@ max-args = 10 # Maximum number of arguments for a function
 disable = [
     "logging-fstring-interpolation", # Ignore logging f-string interpolation warnings
     "too-many-positional-arguments", # Disable positional arguments limit warning
-    "broad-exception-caught"        # Disable broad exception warnings
+    "broad-exception-caught",        # Disable broad exception warnings
 ]

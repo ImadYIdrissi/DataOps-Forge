@@ -2,5 +2,6 @@ black
 bandit
 flake8
 flake8-pyproject
+python-dotenv
 pylint
 pydocstyle

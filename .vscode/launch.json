@@ -9,7 +9,7 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/engine"
             }
         },
         {
@@ -27,7 +27,7 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/engine"
             }
         },
         {
@@ -46,7 +46,7 @@
                 "8000"
             ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}",
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/engine"
             },
             "justMyCode": true
         }

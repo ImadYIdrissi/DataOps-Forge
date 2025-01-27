@@ -1,6 +1,4 @@
--r requirements.dev.in
 pandas
 db-dtypes
-fastapi[standard]
 google-cloud-bigquery
 google-cloud-bigquery-storage

@@ -4,7 +4,7 @@ import os
 import uvicorn
 from fastapi import FastAPI
 
-from engine.data_pipelines.microservices.google_analytics_pipeline.main_pipeline import main
+from data_pipelines.microservices.google_analytics_pipeline.main_pipeline import main
 
 app = FastAPI()
 
@@ -27,5 +27,5 @@ def get_agg_data():
 
 if __name__ == "__main__":
     # Serve the FastAPI app on the port provided by the environment variable
-    port = int(os.getenv("PORT", "8000"))
+    port = int(os.getenv("PORT", "8080"))
     uvicorn.run(app, host="0.0.0.0", port=port)  # nosec

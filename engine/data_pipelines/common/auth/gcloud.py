@@ -2,7 +2,7 @@
 
 import subprocess  # nosec
 
-from engine.data_pipelines.common.logging import LOGGER
+from data_pipelines.common.logging import LOGGER
 
 
 def get_auth_token() -> str:

@@ -42,19 +42,19 @@ DataOps-Forge/                     # Root of the repository containing all proje
 1. Create virtual env via pyenv, for convention call it dataops-forge
 2. Activate virtual env
 
-    ```bash
-    pyenv activate dataops-forge
-    pip install -U pip pip-tools
-    ```
+   ```bash
+   pyenv activate dataops-forge
+   pip install -U pip pip-tools
+   ```
 
-    NB: It is recommended to set up this environment as your default IDE interpreter. 3. Install and update python tools
+   NB: It is recommended to set up this environment as your default IDE interpreter. 3. Install and update python tools
 
 3. [Optional] if need to update python requirements, then recompile them this way :
 
-    ```bash
-    pip-compile requirements.in
-    pip-compile requirements.dev.in
-    ```
+   ```bash
+   pip-compile requirements.in
+   pip-compile requirements.ci.in
+   ```
 
 ## Run CI locally
 
